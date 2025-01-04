@@ -9,7 +9,240 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      customers: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          notes?: string | null
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          min_quantity: number | null
+          name: string
+          purchase_price: number
+          quantity: number
+          selling_price: number
+          sku: string
+          supplier_contact: string | null
+          supplier_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          min_quantity?: number | null
+          name: string
+          purchase_price: number
+          quantity?: number
+          selling_price: number
+          sku: string
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          min_quantity?: number | null
+          name?: string
+          purchase_price?: number
+          quantity?: number
+          selling_price?: number
+          sku?: string
+          supplier_contact?: string | null
+          supplier_name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          created_at: string
+          customer_id: string
+          discount: number | null
+          id: string
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          subtotal: number
+          tax: number
+          ticket_id: string | null
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          discount?: number | null
+          id?: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          subtotal: number
+          tax: number
+          ticket_id?: string | null
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          discount?: number | null
+          id?: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          subtotal?: number
+          tax?: number
+          ticket_id?: string | null
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "repair_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      repair_tickets: {
+        Row: {
+          created_at: string
+          customer_id: string
+          device_model: string
+          device_type: Database["public"]["Enums"]["device_type"]
+          diagnosis: string | null
+          estimated_cost: number | null
+          final_cost: number | null
+          id: string
+          issue_description: string
+          serial_number: string | null
+          solution: string | null
+          status: Database["public"]["Enums"]["ticket_status"]
+          technician_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          device_model: string
+          device_type: Database["public"]["Enums"]["device_type"]
+          diagnosis?: string | null
+          estimated_cost?: number | null
+          final_cost?: number | null
+          id?: string
+          issue_description: string
+          serial_number?: string | null
+          solution?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          technician_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          device_model?: string
+          device_type?: Database["public"]["Enums"]["device_type"]
+          diagnosis?: string | null
+          estimated_cost?: number | null
+          final_cost?: number | null
+          id?: string
+          issue_description?: string
+          serial_number?: string | null
+          solution?: string | null
+          status?: Database["public"]["Enums"]["ticket_status"]
+          technician_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repair_tickets_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "repair_tickets_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +251,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      device_type: "phone" | "tablet" | "laptop" | "desktop" | "other"
+      payment_status: "pending" | "partial" | "paid" | "refunded"
+      ticket_status: "pending" | "in_progress" | "completed" | "cancelled"
+      user_role: "admin" | "manager" | "technician" | "staff"
     }
     CompositeTypes: {
       [_ in never]: never

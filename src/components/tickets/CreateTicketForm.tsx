@@ -1,0 +1,169 @@
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { supabase } from "@/integrations/supabase/client"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+
+const formSchema = z.object({
+  customer_id: z.string().min(1, "Customer is required"),
+  device_type: z.enum(["phone", "tablet", "laptop", "desktop", "other"]),
+  device_model: z.string().min(1, "Device model is required"),
+  serial_number: z.string().optional(),
+  issue_description: z.string().min(1, "Issue description is required"),
+  estimated_cost: z.string().optional(),
+})
+
+interface CreateTicketFormProps {
+  onSuccess: () => void
+}
+
+export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      device_type: "phone",
+    },
+  })
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      const { error } = await supabase
+        .from('repair_tickets')
+        .insert([{
+          ...values,
+          estimated_cost: values.estimated_cost ? parseFloat(values.estimated_cost) : null,
+          status: 'pending'
+        }])
+
+      if (error) throw error
+
+      form.reset()
+      onSuccess()
+    } catch (error) {
+      console.error('Error creating ticket:', error)
+    }
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="customer_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Customer</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a customer" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="1">John Doe</SelectItem>
+                  <SelectItem value="2">Jane Smith</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="device_type"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Device Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select device type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="phone">Phone</SelectItem>
+                  <SelectItem value="tablet">Tablet</SelectItem>
+                  <SelectItem value="laptop">Laptop</SelectItem>
+                  <SelectItem value="desktop">Desktop</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="device_model"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Device Model</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. iPhone 12 Pro" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="serial_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Serial Number (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter serial number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="issue_description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Issue Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Describe the issue..."
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="estimated_cost"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Estimated Cost (Optional)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  placeholder="Enter estimated cost"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit">Create Ticket</Button>
+      </form>
+    </Form>
+  )
+}
