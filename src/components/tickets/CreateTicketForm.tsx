@@ -8,6 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { generateTicketNumber } from "./utils/generateTicketNumber"
+import { PatternInput } from "./PatternInput"
 
 interface Customer {
   id: string
@@ -22,6 +24,10 @@ const formSchema = z.object({
   serial_number: z.string().optional(),
   issue_description: z.string().min(1, "Issue description is required"),
   estimated_cost: z.string().optional(),
+  use_pattern: z.boolean().default(false),
+  pattern: z.string().optional(),
+  access_code: z.string().optional(),
+  sim_code: z.string().optional(),
 })
 
 interface CreateTicketFormProps {
@@ -53,6 +59,7 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       device_type: "phone",
+      use_pattern: false,
     },
   })
 
@@ -67,7 +74,13 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
           serial_number: values.serial_number || null,
           issue_description: values.issue_description,
           estimated_cost: values.estimated_cost ? parseFloat(values.estimated_cost) : null,
-          status: 'pending'
+          status: 'pending',
+          repair_ticket_number: generateTicketNumber(),
+          use_pattern: values.use_pattern,
+          pattern: values.pattern || null,
+          access_code: values.access_code || null,
+          sim_code: values.sim_code || null,
+          payment_status: 'Not Paid'
         })
 
       if (error) throw error
@@ -159,6 +172,8 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
             </FormItem>
           )}
         />
+
+        <PatternInput form={form} />
 
         <FormField
           control={form.control}

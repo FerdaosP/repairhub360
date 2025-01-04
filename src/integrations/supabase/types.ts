@@ -177,8 +177,44 @@ export type Database = {
         }
         Relationships: []
       }
+      repair_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_type: string
+          file_url: string
+          id: string
+          repair_ticket_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_type: string
+          file_url: string
+          id?: string
+          repair_ticket_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_type?: string
+          file_url?: string
+          id?: string
+          repair_ticket_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repair_attachments_repair_ticket_id_fkey"
+            columns: ["repair_ticket_id"]
+            isOneToOne: false
+            referencedRelation: "repair_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       repair_tickets: {
         Row: {
+          access_code: string | null
           created_at: string
           customer_id: string
           device_model: string
@@ -188,13 +224,19 @@ export type Database = {
           final_cost: number | null
           id: string
           issue_description: string
+          pattern: string | null
+          payment_status: string | null
+          repair_ticket_number: string | null
           serial_number: string | null
+          sim_code: string | null
           solution: string | null
           status: Database["public"]["Enums"]["ticket_status"]
           technician_id: string | null
           updated_at: string
+          use_pattern: boolean | null
         }
         Insert: {
+          access_code?: string | null
           created_at?: string
           customer_id: string
           device_model: string
@@ -204,13 +246,19 @@ export type Database = {
           final_cost?: number | null
           id?: string
           issue_description: string
+          pattern?: string | null
+          payment_status?: string | null
+          repair_ticket_number?: string | null
           serial_number?: string | null
+          sim_code?: string | null
           solution?: string | null
           status?: Database["public"]["Enums"]["ticket_status"]
           technician_id?: string | null
           updated_at?: string
+          use_pattern?: boolean | null
         }
         Update: {
+          access_code?: string | null
           created_at?: string
           customer_id?: string
           device_model?: string
@@ -220,11 +268,16 @@ export type Database = {
           final_cost?: number | null
           id?: string
           issue_description?: string
+          pattern?: string | null
+          payment_status?: string | null
+          repair_ticket_number?: string | null
           serial_number?: string | null
+          sim_code?: string | null
           solution?: string | null
           status?: Database["public"]["Enums"]["ticket_status"]
           technician_id?: string | null
           updated_at?: string
+          use_pattern?: boolean | null
         }
         Relationships: [
           {
