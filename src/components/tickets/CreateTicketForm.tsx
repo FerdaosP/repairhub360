@@ -33,11 +33,15 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
     try {
       const { error } = await supabase
         .from('repair_tickets')
-        .insert([{
-          ...values,
+        .insert({
+          customer_id: values.customer_id,
+          device_type: values.device_type,
+          device_model: values.device_model,
+          serial_number: values.serial_number || null,
+          issue_description: values.issue_description,
           estimated_cost: values.estimated_cost ? parseFloat(values.estimated_cost) : null,
           status: 'pending'
-        }])
+        })
 
       if (error) throw error
 
