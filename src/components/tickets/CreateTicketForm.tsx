@@ -5,8 +5,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { supabase } from "@/integrations/supabase/client"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+
+interface Customer {
+  id: string
+  first_name: string
+  last_name: string
+}
 
 const formSchema = z.object({
   customer_id: z.string().min(1, "Customer is required"),
@@ -22,6 +29,26 @@ interface CreateTicketFormProps {
 }
 
 export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
+  const [customers, setCustomers] = useState<Customer[]>([])
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('id, first_name, last_name')
+        .order('first_name')
+      
+      if (error) {
+        console.error('Error fetching customers:', error)
+        return
+      }
+
+      setCustomers(data || [])
+    }
+
+    fetchCustomers()
+  }, [])
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,8 +95,11 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="1">John Doe</SelectItem>
-                  <SelectItem value="2">Jane Smith</SelectItem>
+                  {customers.map((customer) => (
+                    <SelectItem key={customer.id} value={customer.id}>
+                      {customer.first_name} {customer.last_name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />
